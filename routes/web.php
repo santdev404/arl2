@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PostController;
 
 //Cargando clase
 use App\Http\Middleware\ApiAuthMiddleware;
@@ -33,3 +34,6 @@ Route::get('/api/user/detail/{id}', [UserController::class, 'detail']);
 
 //Rutas categoria
 Route::resource('/api/category', CategoryController::class);
+
+//Rutas post
+Route::resource('/api/post', PostController::class);
