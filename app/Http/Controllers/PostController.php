@@ -56,9 +56,7 @@ class PostController extends Controller
 
         if(!empty($params_array)){
             //Conseguir usuario indentificado
-            $jwtAuth = new \App\Helpers\JwtAuth();
-            $token = $request->header('Authorization', null);
-            $user = $jwtAuth->checkToken($token, true);
+            $user = $this->getIdentity($request);
 
             //Validar los datos
             $validate = \Validator::make($params_array, [
@@ -139,17 +137,38 @@ class PostController extends Controller
             unset($params_array['created_at']);
             unset($params_array['user']);
 
-            //Actualizar el resgistro
+            //Conseguir usuario indentificado
+            $user = $this->getIdentity($request);
+
+            
             //Get, first obtiene los objetos actualizados solo funciona con QueryBuilder
-            $post = Post::where('id', $id)->updateOrCreate($params_array);
+
+            //Buscar el registro
+            $post = Post::where('id', $id)
+                        ->where('user_id', $user->sub)->first();
+
+            if(!empty($post) && is_object($post)){
+
+                //Actualizar el resgistro
+                $post->update($params_array);
+
+                $data = [
+                    'code' => 200,
+                    'status' => 'success',
+                    'post' => $post,
+                    'change' => $params_array
+                ];
+            }
+
+
+            // $where = [
+            //     'id' => $id,
+            //     'user_id' => $user->sub
+            // ];
+            // $post = Post::updateOrCreate($where, $params_array);
 
             //Regresar data
-            $data = [
-                'code' => 200,
-                'status' => 'success',
-                'post' => $post,
-                'change' => $params_array
-            ];
+
             
         }
         return response()->json($data, $data['code']);
@@ -157,8 +176,12 @@ class PostController extends Controller
     }
 
     public function destroy($id, Request $request){
+
+        $user = $this->getIdentity($request);
+
         //Conseguir el post
-        $post = Post::find($id);
+        $post = Post::where('id', $id)
+                ->where('user_id', $user->sub)->first();
 
         if(!empty($post)){
             //Borrarlo
@@ -181,6 +204,16 @@ class PostController extends Controller
         
 
         return response()->json($data, $data['code']);
+    }
+
+
+    private function getIdentity($request){
+        //Conseguir usuario indentificado
+        $jwtAuth = new \App\Helpers\JwtAuth();
+        $token = $request->header('Authorization', null);
+        $user = $jwtAuth->checkToken($token, true);
+
+        return $user;
     }
 
 }
