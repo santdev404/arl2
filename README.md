@@ -1,1 +1,1 @@
-# PHP API Firebase JWT
+# PHP API Firebase JWT Angular
