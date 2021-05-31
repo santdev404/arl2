@@ -37,3 +37,5 @@ Route::resource('/api/category', CategoryController::class);
 
 //Rutas post
 Route::resource('/api/post', PostController::class);
+Route::post('/api/post/upload', [PostController::class, 'upload']);
+Route::get('/api/post/image/{filename}', [PostController::class, 'getImage']);

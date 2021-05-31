@@ -14,7 +14,7 @@ class PostController extends Controller
 {
     public function __construct(){
         //Pedir header y token del usuario en cada autenticacion
-        $this->middleware('api.auth', ['except' => ['index','show']]);
+        $this->middleware('api.auth', ['except' => ['index','show','getImage']]);
     }
 
 
@@ -203,6 +203,62 @@ class PostController extends Controller
 
         
 
+        return response()->json($data, $data['code']);
+    }
+
+
+    public function upload(Request $request){
+        //Recoger la imagen
+        $image = $request->file('file0');
+
+        //Validar la imagen
+        $validate = \Validator::make($request->all(),[
+            'file0' => 'required|image|mimes:jpg,jpeg,png,gif',
+        ]);
+
+       
+        if(!$image || $validate->fails()){
+            $data = [
+                'code' => 400,
+                'status' => 'error',
+                'message' => 'Error al subir la iamgen'
+            ];
+        }else{
+            //Guardar la imagen
+            $image_name = time().$image->getClientOriginalName();
+
+            \Storage::disk('images')->put($image_name, \File::get($image));
+
+            $data = [
+                'code' => 200,
+                'status' => 'success',
+                'image' => $image_name
+            ];
+        }
+
+        //Devolver datos
+        return response()->json($data, $data['code']);
+
+    }
+
+    public function getImage($filename){
+        //Comprobar si existe el fichero
+        $isset = \Storage::disk('images')->exists($filename);
+
+        if($isset){
+            //Conseguir la imagen
+            $file = \Storage::disk('images')->get($filename);
+            //Devolver imagen
+            return new Response($file, 200);
+        }else{
+            $data = [
+                'code' => 404,
+                'status' => 'error',
+                'message' => 'imagen no encontrada'
+            ];
+        }
+
+        //Mostrar el error
         return response()->json($data, $data['code']);
     }
 
