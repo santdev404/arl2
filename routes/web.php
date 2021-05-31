@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CategoryController;
 
 //Cargando clase
 use App\Http\Middleware\ApiAuthMiddleware;
@@ -22,10 +23,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
+//Rutas usuarios
 Route::post('/api/register', [UserController::class, 'register']);
 Route::post('/api/login', [UserController::class, 'login']);
 Route::put('/api/user/update', [UserController::class, 'update']);
 Route::post('/api/user/upload', [UserController::class, 'upload'])->middleware(ApiAuthMiddleware::class);
 Route::get('/api/user/avatar/{filename}', [UserController::class, 'getImage']);
 Route::get('/api/user/detail/{id}', [UserController::class, 'detail']);
+
+//Rutas categoria
+Route::resource('/api/category', CategoryController::class);
