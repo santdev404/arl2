@@ -34,7 +34,7 @@ class PostController extends Controller
     }
 
     public function show($id){
-        $post = Post::find($id)->load('category');
+        $post = Post::find($id)->load('category')->load('user');
         if(is_object($post)){
             $data = [
                 'code' => 200,
@@ -90,7 +90,7 @@ class PostController extends Controller
 
                 //Guardar el post
                 $data = [
-                    'code'=> 400,
+                    'code'=> 200,
                     'status' => 'success',
                     'post' => $post
                 ];
